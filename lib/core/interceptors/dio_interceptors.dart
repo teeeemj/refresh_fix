@@ -1,10 +1,11 @@
+import 'dart:developer';
+
 import 'package:dashboard_mvvm_arch/core/storage/shared_pref_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:dashboard_mvvm_arch/core/auto_bloc/auto_bloc.dart';
 import 'package:dashboard_mvvm_arch/core/constants/server_constants.dart';
 import 'package:dashboard_mvvm_arch/core/router/router.dart';
 
-/// Returns a globally configured Dio instance
 Dio createDio() {
   return Dio(
     BaseOptions(
@@ -18,41 +19,38 @@ Dio createDio() {
   );
 }
 
-/// Returns a Dio that does NOT add any auth token
-/// and does NOT handle refresh logic.
 Dio createAnonymousDio() {
   return createDio();
 }
 
-/// Returns a Dio that DOES add auth token
-/// and handles refresh token logic.
 Dio createAuthorizedDio() {
+  log('createAuthorizedDio: method called'); // Лог для отладки
+
   final dio = createDio();
   final appRouter = AppRouter();
 
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) async {
-        // Pull the token from secure storage
-        final token = SharedPrefStorage.instance.getString('access_token');
+        final storage = await SharedPrefStorage.getInstance();
+        final token = await storage.getString('access_token');
         if (token != null && token.isNotEmpty) {
           options.headers["Authorization"] = 'Bearer $token';
+          log('Authorization header updated: $token');
         }
         return handler.next(options);
       },
       onError: (error, handler) async {
-        // If we get a 401, try to refresh the token
         if (error.response?.statusCode == 401) {
+          log('Unauthorized, attempting to refresh token...');
           final newAccessToken = await _refreshToken();
           if (newAccessToken != null) {
-            // Update the Dio's authorization header
-            dio.options.headers["Authorization"] = 'Bearer $newAccessToken';
-
-            // Retry the failed request with the new token
+            error.requestOptions.headers["Authorization"] =
+                "Bearer $newAccessToken";
             final cloneReq = await dio.fetch(error.requestOptions);
             return handler.resolve(cloneReq);
           } else {
-            // If refresh fails
+            log('Token refresh failed, redirecting to login.');
             appRouter.replaceAll([const LoginRoute()]);
           }
         }
@@ -65,57 +63,91 @@ Dio createAuthorizedDio() {
 }
 
 /// Handles token refresh logic
+bool _isRefreshing = false;
+
 Future<String?> _refreshToken() async {
+  if (_isRefreshing) {
+    await Future.delayed(const Duration(milliseconds: 500));
+    final storage = await SharedPrefStorage.getInstance();
+    return storage.getString('access_token');
+  }
+
+  _isRefreshing = true;
+
   try {
+    log('Refreshing token...');
     final dio = createDio();
-    final refreshToken = SharedPrefStorage.instance.getString('refresh_token');
+    final storage = await SharedPrefStorage.getInstance();
+    final refreshToken = await storage.getString('refresh_token');
+
+    if (refreshToken == null || refreshToken.isEmpty) {
+      log('Refresh token is missing or empty.');
+      return null;
+    }
 
     final response = await dio.post(
-      '/moses/token/refresh/',
+      '${ServerConstants.serverURL}/moses/token/refresh/',
       data: {'refresh': refreshToken},
     );
 
-    final newAccessToken = response.data['access_token'];
-
-    // Store the new token
-    SharedPrefStorage.instance.setString('access_token', newAccessToken);
-    return newAccessToken;
+    if (response.data is Map && response.data['data'] != null) {
+      final newAccessToken = response.data['data']['access'];
+      response.requestOptions.headers['Authorization'] =
+          'Bearer $newAccessToken';
+      await storage.setString('access_token', newAccessToken);
+      log('Access token refreshed successfully: $newAccessToken');
+      return newAccessToken;
+    } else {
+      log('Unexpected response format: ${response.data}');
+      return null;
+    }
   } catch (exception) {
-    // If refresh fails, clear all tokens
-    SharedPrefStorage.instance.clear();
+    log('Exception while refreshing token: $exception');
+    final storage = await SharedPrefStorage.getInstance();
+    await storage.clear();
     return null;
+  } finally {
+    _isRefreshing = false;
   }
 }
 
-void validateResponse(
+Future<Response> validateResponse(
   Response response, {
   List<int> successCodes = const [200, 201, 202, 203, 204, 205],
-}) {
-  if (successCodes.contains(response.statusCode)) return;
+}) async {
+  if (successCodes.contains(response.statusCode)) return response;
 
-  String errorMessage = response.data.toString();
-  if (response.data is Map && response.data.containsKey('errors')) {
-    final errors = response.data['errors'];
+  if (response.statusCode == 401) {
+    log('Unauthorized, attempting to refresh token...');
+    final newAccessToken = await _refreshToken();
 
-    // Check for the format in the provided function
-    if (errors is Map && errors.containsKey('')) {
-      final errorList = errors[''];
-      if (errorList is List && errorList.isNotEmpty) {
-        final firstError = errorList.first;
-        if (firstError is Map && firstError.containsKey('error_code')) {
-          errorMessage = firstError['error_code'];
+    if (newAccessToken != null) {
+      try {
+        final dio = createDio();
+        response.requestOptions.headers['Authorization'] =
+            'Bearer $newAccessToken';
+        final retryResponse = await dio.request(
+          response.requestOptions.path,
+          options: Options(
+            method: response.requestOptions.method,
+            headers: response.requestOptions.headers,
+          ),
+          data: response.requestOptions.data,
+          queryParameters: response.requestOptions.queryParameters,
+        );
+
+        if (successCodes.contains(retryResponse.statusCode)) {
+          log('Request successful after token refresh.');
+          return retryResponse;
         }
+      } catch (retryError) {
+        log('Retry failed: $retryError');
       }
-    }
-
-    // Check for the format from the image
-    else if (errors is Map && errors.containsKey('code')) {
-      errorMessage = errors['code'];
     }
   }
 
   throw ResponseError(
-    message: errorMessage,
+    message: response.data.toString(),
     statusCode: response.statusCode,
     data: response.data,
   );

@@ -13,13 +13,9 @@ class TopPlayersBloc extends AutoBloc<TopPlayersEvent, TopPlayersState> {
   TopPlayersBloc() : super(const TopPlayersState.initial()) {
     on<_GetStarted>((event, emit) async {
       emit(const TopPlayersState.loading());
-      try {
-        final response = await _authRemoteRepository.getPlayers();
-        print('response $response');
-        emit(TopPlayersState.success(response));
-      } catch (error) {
-        add(GenericEvent.responseError(error.toString()));
-      }
+      final response = await _authRemoteRepository.getPlayers();
+      print('response $response');
+      emit(TopPlayersState.success(response));
     });
   }
 

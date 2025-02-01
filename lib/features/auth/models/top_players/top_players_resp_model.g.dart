@@ -22,11 +22,11 @@ Map<String, dynamic> _$$TopPlayersRespModelImplToJson(
 
 _$TopPlayersDataImpl _$$TopPlayersDataImplFromJson(Map<String, dynamic> json) =>
     _$TopPlayersDataImpl(
-      count: (json['count'] as num).toInt(),
+      count: (json['count'] as num?)?.toInt(),
       next: json['next'] as String?,
       previous: json['previous'] as String?,
-      results: (json['results'] as List<dynamic>)
-          .map((e) => TopPlayer.fromJson(e as Map<String, dynamic>))
+      results: (json['results'] as List<dynamic>?)
+          ?.map((e) => TopPlayer.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 

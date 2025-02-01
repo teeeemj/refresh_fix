@@ -9,7 +9,7 @@ import 'package:dashboard_mvvm_arch/core/theme/theme.dart';
 void main() async {
   Bloc.observer = GlobalBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPrefStorage.instance.init();
+  await SharedPrefStorage.getInstance();
   runApp(const MyApp());
 }
 

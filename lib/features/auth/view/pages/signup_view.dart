@@ -8,17 +8,28 @@ class SignupView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ElevatedButton(
+      body: BlocConsumer<TopPlayersBloc, TopPlayersState>(
+        listener: (context, state) {
+          if (state is TopPlayersStateError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Center(
+              child: ElevatedButton(
             onPressed: () {
-              context.read<TopPlayersBloc>().add(
-                    TopPlayersEvent.getStarted(),
-                  );
+              final bloc = context.read<TopPlayersBloc>();
+              if (bloc.state is! TopPlayersStateLoading) {
+                bloc.add(TopPlayersEvent.getStarted());
+              }
             },
-            child: Text(
-              'tap me',
-              style: TextStyle(color: Colors.white),
-            )),
+            child: const Text('tap me'),
+          ));
+        },
       ),
     );
   }

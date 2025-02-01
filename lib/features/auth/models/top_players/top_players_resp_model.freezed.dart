@@ -212,11 +212,11 @@ TopPlayersData _$TopPlayersDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$TopPlayersData {
-  int get count => throw _privateConstructorUsedError;
+  int? get count => throw _privateConstructorUsedError;
   String? get next => throw _privateConstructorUsedError;
   String? get previous => throw _privateConstructorUsedError;
   @JsonKey(name: 'results')
-  List<TopPlayer> get results => throw _privateConstructorUsedError;
+  List<TopPlayer>? get results => throw _privateConstructorUsedError;
 
   /// Serializes this TopPlayersData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -235,10 +235,10 @@ abstract class $TopPlayersDataCopyWith<$Res> {
       _$TopPlayersDataCopyWithImpl<$Res, TopPlayersData>;
   @useResult
   $Res call(
-      {int count,
+      {int? count,
       String? next,
       String? previous,
-      @JsonKey(name: 'results') List<TopPlayer> results});
+      @JsonKey(name: 'results') List<TopPlayer>? results});
 }
 
 /// @nodoc
@@ -256,16 +256,16 @@ class _$TopPlayersDataCopyWithImpl<$Res, $Val extends TopPlayersData>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? count = null,
+    Object? count = freezed,
     Object? next = freezed,
     Object? previous = freezed,
-    Object? results = null,
+    Object? results = freezed,
   }) {
     return _then(_value.copyWith(
-      count: null == count
+      count: freezed == count
           ? _value.count
           : count // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       next: freezed == next
           ? _value.next
           : next // ignore: cast_nullable_to_non_nullable
@@ -274,10 +274,10 @@ class _$TopPlayersDataCopyWithImpl<$Res, $Val extends TopPlayersData>
           ? _value.previous
           : previous // ignore: cast_nullable_to_non_nullable
               as String?,
-      results: null == results
+      results: freezed == results
           ? _value.results
           : results // ignore: cast_nullable_to_non_nullable
-              as List<TopPlayer>,
+              as List<TopPlayer>?,
     ) as $Val);
   }
 }
@@ -291,10 +291,10 @@ abstract class _$$TopPlayersDataImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int count,
+      {int? count,
       String? next,
       String? previous,
-      @JsonKey(name: 'results') List<TopPlayer> results});
+      @JsonKey(name: 'results') List<TopPlayer>? results});
 }
 
 /// @nodoc
@@ -310,16 +310,16 @@ class __$$TopPlayersDataImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? count = null,
+    Object? count = freezed,
     Object? next = freezed,
     Object? previous = freezed,
-    Object? results = null,
+    Object? results = freezed,
   }) {
     return _then(_$TopPlayersDataImpl(
-      count: null == count
+      count: freezed == count
           ? _value.count
           : count // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       next: freezed == next
           ? _value.next
           : next // ignore: cast_nullable_to_non_nullable
@@ -328,10 +328,10 @@ class __$$TopPlayersDataImplCopyWithImpl<$Res>
           ? _value.previous
           : previous // ignore: cast_nullable_to_non_nullable
               as String?,
-      results: null == results
+      results: freezed == results
           ? _value._results
           : results // ignore: cast_nullable_to_non_nullable
-              as List<TopPlayer>,
+              as List<TopPlayer>?,
     ));
   }
 }
@@ -340,28 +340,30 @@ class __$$TopPlayersDataImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$TopPlayersDataImpl implements _TopPlayersData {
   const _$TopPlayersDataImpl(
-      {required this.count,
+      {this.count,
       this.next,
       this.previous,
-      @JsonKey(name: 'results') required final List<TopPlayer> results})
+      @JsonKey(name: 'results') final List<TopPlayer>? results})
       : _results = results;
 
   factory _$TopPlayersDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$TopPlayersDataImplFromJson(json);
 
   @override
-  final int count;
+  final int? count;
   @override
   final String? next;
   @override
   final String? previous;
-  final List<TopPlayer> _results;
+  final List<TopPlayer>? _results;
   @override
   @JsonKey(name: 'results')
-  List<TopPlayer> get results {
+  List<TopPlayer>? get results {
+    final value = _results;
+    if (value == null) return null;
     if (_results is EqualUnmodifiableListView) return _results;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_results);
+    return EqualUnmodifiableListView(value);
   }
 
   @override
@@ -405,24 +407,24 @@ class _$TopPlayersDataImpl implements _TopPlayersData {
 
 abstract class _TopPlayersData implements TopPlayersData {
   const factory _TopPlayersData(
-          {required final int count,
+          {final int? count,
           final String? next,
           final String? previous,
-          @JsonKey(name: 'results') required final List<TopPlayer> results}) =
+          @JsonKey(name: 'results') final List<TopPlayer>? results}) =
       _$TopPlayersDataImpl;
 
   factory _TopPlayersData.fromJson(Map<String, dynamic> json) =
       _$TopPlayersDataImpl.fromJson;
 
   @override
-  int get count;
+  int? get count;
   @override
   String? get next;
   @override
   String? get previous;
   @override
   @JsonKey(name: 'results')
-  List<TopPlayer> get results;
+  List<TopPlayer>? get results;
 
   /// Create a copy of TopPlayersData
   /// with the given fields replaced by the non-null parameter values.

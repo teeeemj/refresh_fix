@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dashboard_mvvm_arch/features/auth/models/top_players/top_players_resp_model.dart';
 import 'package:dio/dio.dart';
 import 'package:dashboard_mvvm_arch/core/interceptors/dio_interceptors.dart';
@@ -9,6 +11,8 @@ class AuthRemoteRepository {
   late final Dio _authorizedDio;
 
   AuthRemoteRepository() {
+    log('AuthRemoteRepository initialized');
+
     _anonymousDio = createAnonymousDio();
     _authorizedDio = createAuthorizedDio();
   }
@@ -27,8 +31,7 @@ class AuthRemoteRepository {
   Future<TopPlayersRespModel> getPlayers() async {
     final response = await _authorizedDio.get(
         '/accounts/profile/?season=872eaa69-d5ba-492b-89d6-508390cd2166&offset=0&limit=10');
-    validateResponse(response);
-    final resFromJsonModel = TopPlayersRespModel.fromJson(response.data);
-    return resFromJsonModel;
+    final validResponse = await validateResponse(response);
+    return TopPlayersRespModel.fromJson(validResponse.data);
   }
 }

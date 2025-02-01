@@ -648,6 +648,8 @@ abstract class _$$TopPlayersStateSuccessImplCopyWith<$Res> {
       __$$TopPlayersStateSuccessImplCopyWithImpl<$Res>;
   @useResult
   $Res call({TopPlayersRespModel res});
+
+  $TopPlayersRespModelCopyWith<$Res> get res;
 }
 
 /// @nodoc
@@ -664,14 +666,24 @@ class __$$TopPlayersStateSuccessImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? res = freezed,
+    Object? res = null,
   }) {
     return _then(_$TopPlayersStateSuccessImpl(
-      freezed == res
+      null == res
           ? _value.res
           : res // ignore: cast_nullable_to_non_nullable
               as TopPlayersRespModel,
     ));
+  }
+
+  /// Create a copy of TopPlayersState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TopPlayersRespModelCopyWith<$Res> get res {
+    return $TopPlayersRespModelCopyWith<$Res>(_value.res, (value) {
+      return _then(_value.copyWith(res: value));
+    });
   }
 }
 
@@ -693,12 +705,11 @@ class _$TopPlayersStateSuccessImpl implements TopPlayersStateSuccess {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$TopPlayersStateSuccessImpl &&
-            const DeepCollectionEquality().equals(other.res, res));
+            (identical(other.res, res) || other.res == res));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(res));
+  int get hashCode => Object.hash(runtimeType, res);
 
   /// Create a copy of TopPlayersState
   /// with the given fields replaced by the non-null parameter values.

@@ -17,10 +17,10 @@ class TopPlayersRespModel with _$TopPlayersRespModel {
 @freezed
 class TopPlayersData with _$TopPlayersData {
   const factory TopPlayersData({
-    required int count,
+    int? count,
     String? next,
     String? previous,
-    @JsonKey(name: 'results') required List<TopPlayer> results,
+    @JsonKey(name: 'results') List<TopPlayer>? results,
   }) = _TopPlayersData;
 
   factory TopPlayersData.fromJson(Map<String, dynamic> json) =>
